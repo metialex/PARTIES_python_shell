@@ -1,0 +1,13 @@
+CHANGELOG.txt
+LICENCE.txt
+MANIFEST.in
+README.txt
+__init__.py
+multiple_simulations.py
+post_process.py
+setup.py
+simulation.py
+parties.egg-info/PKG-INFO
+parties.egg-info/SOURCES.txt
+parties.egg-info/dependency_links.txt
+parties.egg-info/top_level.txt

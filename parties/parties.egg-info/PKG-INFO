@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: parties
+Version: 0.0.2
+Summary: A python shell for parties cfd code
+Home-page: https://github.com/metialex/PARTIES_python_shell
+Author: Alexander Metelkin
+Author-email: a.metelkin@tu-braunschweig.de
+License: MIT
+Platform: UNKNOWN
+License-File: LICENCE.txt
+
+A python shell for parties cfd code
+

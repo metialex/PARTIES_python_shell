@@ -1,0 +1,1 @@
+This is a python library which helps to operate PARTIES cfd code
