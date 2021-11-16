@@ -15,6 +15,7 @@ class simulation:
     def __init__(self,
                  proc_num = 2,
                  PARTIESINP = 'parties.inp',
+                 BOUNDARYH = 'srx/Include/Boundary.h',
                  tmp_log_name = 'tmp.log',
                  run_command = 'mpirun'
                  ):
@@ -66,5 +67,4 @@ class simulation:
     def make(self):
         os.system('make clean')
         os.system('make')
-        
         print('make')

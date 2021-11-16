@@ -164,3 +164,4 @@ venv
 *.inp
 *.dat
 *.log
+test/parties
