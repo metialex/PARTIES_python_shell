@@ -50,7 +50,7 @@ class simulation:
         self.status = False
 
     def check_status(self):
-        if self.parties.poll() is not 0: return 1
+        if self.parties.poll() != 0: return 1
         else: return 0
 
     def change_line(self, file_name, line_keyword, value):
@@ -86,7 +86,7 @@ class post_process:
 
         try:
             for i,flag in enumerate(flags):
-                if i is 0: 
+                if i == 0: 
                     res = f.get(flag)
                 else: res = res.get(flag)
             return res
@@ -104,7 +104,7 @@ class post_process:
         prev_kwargs = kwargs
 
         #Position of the slicing plane
-        if plane_position is 'mid': p_pos=int(self.get('Data',file_idx,['grid','NZ'])[0]/2)
+        if plane_position == 'mid': p_pos=int(self.get('Data',file_idx,['grid','NZ'])[0]/2)
         else: p_pos=plane_position
 
         u = self.get('Data',file_idx,['u'])[p_pos]
@@ -144,38 +144,40 @@ class multiple_simulations:
     def __init__(self,
                  n_avail_proc = 20,
                  n_pps = 10,
-                 vars = None
+                 vars = None,
+                 run_command='mpirun'
                  ):
         self.sim_list=[]
         self.n_avail_proc = n_avail_proc
         self.n_pps = n_pps #number of processors per simulation
         self.vars = vars #iteratable variables
         self.print_status = False
+        self.run_command = run_command
     
     def run_serial(self, stop_condition = False):
-        if self.vars is None:
+        if self.vars == None:
             print('No variables to iterate')
         else:
             cols = list(self.vars.columns)
             for idx, rows in self.vars.iterrows():
-                s = simulation(proc_num=self.n_pps, run_command='mpirun_o')
+                s = simulation(proc_num=self.n_pps, run_command=self.run_command)
                 self.set_postfix(cols,rows)                
                 os.system('mkdir ' + self.postfix)
                 s.change_parties_inp(cols,rows)
                 os.system('cp *.inp parties ' + self.postfix + '/')
                 s.run(folder=(self.postfix+'/'))
-                while s.check_status() or stop_condition is True:
+                while s.check_status() or stop_condition == True:
                     time.sleep(1)
                     print('Running job: ' + self.postfix,end='\r')
                 s.stop()
         return 0
     
-    def run_parallel(self,):
+    def run_parallel(self):
         
         def update_simulation_status():
             res = 0
             for item in self.sim_list:
-                if item['status'] is 'Running' and item['simulation'].check_status() is 0:
+                if item['status'] == 'Running' and item['simulation'].check_status() == 0:
                     item['status'] = 'Done'
                     res += self.n_pps
             return res
@@ -190,9 +192,10 @@ class multiple_simulations:
             dummy = (100 * ' ' + '\n')*(len(self.sim_list)+2)
             end_var = '\033[F'*(len(self.sim_list)+2)
             
-            if prev_print_status is True: print('',end=end_var)
+            if prev_print_status == True: print('',end=end_var)
             print(dummy,end=end_var)
             print(print_cmd,end='')
+            self.print_status = True
 
 
         if self.vars is None:
@@ -204,7 +207,7 @@ class multiple_simulations:
 
         #Create a list of simulations
         for idx, rows in self.vars.iterrows():
-            s = simulation(proc_num=self.n_pps, run_command='mpirun_o')
+            s = simulation(proc_num=self.n_pps, run_command=self.run_command)
             self.set_postfix(cols,rows)
             sim = {'simulation':s,
                    'postfix':self.postfix,
@@ -218,28 +221,32 @@ class multiple_simulations:
             os.system('cp *.inp parties ' + self.postfix + '/')
 
         #Run simulations parallely
+        work_proc = self.n_avail_proc
         while True:
+            time.sleep(1)
             #################### Simulation Update #####################
             #This piece of code constantly goes through all simulations#
             #checks it's status and runs new simulations if there are  #
             #enogh processers                                          #
             ########################## Start ###########################
-            work_proc = self.n_avail_proc
             for item in self.sim_list:
-                if item['status'] is 'Done' or 'Running': continue
-                if work_proc < self.n_pps:
-                    while work_proc < self.n_pps:
-                        #Keep updating the status of running simulations
-                        work_proc += update_simulation_status()
-                        print_sim_table(self.print_status)
-                        self.print_status = True
-                        time.sleep(1)
-                #run this simulation
+                time.sleep(0.5)
+                if item['status'] == 'Done': continue
+                if item['status'] == 'Running':
+                    work_proc += update_simulation_status()
+                    continue
+                if work_proc < self.n_pps: continue
                 item['simulation'].run(folder=(item['postfix']+'/'))
                 item['status'] = 'Running'
                 work_proc -= self.n_pps
-            ########################## Stop ###########################
-            time.sleep(1)
+            ########################## Stop ############################
+            
+            print_sim_table(self.print_status)
+            #out of while loop
+            stop_flag = True
+            for item in self.sim_list:
+                if item['status'] != 'Done': stop_flag = False
+            if stop_flag == True: break
         print('Simulations are completed')
         return 0
 
@@ -253,7 +260,7 @@ class multiple_simulations:
         for comp in range(len(cols)):
             line_keyword = cols[comp]
             value = row[cols[comp]]
-            if type(value) is np.float64: value = round(value,3)
+            if type(value) == np.float64: value = round(value,3)
             tmp = line_keyword.replace(" ","")
             tmp = tmp.replace("=","")
             self.postfix += tmp + "_" + str(value)

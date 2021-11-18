@@ -20,7 +20,7 @@ if os.path.isfile('parties') is False:
 
 print('Basic test of simulation class...')
 try:
-    s = simulation(proc_num=2,run_command='mpirun_o')
+    s = simulation(proc_num=2,run_command='mpirun')
     s.run()
     #time.sleep(2)
     s.stop()
@@ -36,7 +36,7 @@ Re_range = ['1.0', '10.0']
 iterative_variables = {'Re = ':Re_range,
                        'rho_s = ': Re_range}
 
-ms = multiple_simulations(n_avail_proc=2,n_pps=2)
+ms = multiple_simulations(n_avail_proc=1,n_pps=1)
 ms.vars = ms.cartesian_product(iterative_variables)
 ms.run_parallel()
 #except:
