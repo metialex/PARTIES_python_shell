@@ -7,7 +7,6 @@ import h5py
 import sys
 from collections import OrderedDict
 from itertools import product
-from icecream import ic
 import fileinput
 import time
 import glob
@@ -15,8 +14,6 @@ import glob
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-ic.enable()
 
 class simulation:
     def __init__(self,
@@ -34,9 +31,6 @@ class simulation:
         self.parties = None #process variable - to start/stop simulation
         self.status = False
         self.main_dir = os.getcwd() + '/'
-        
-    def rm_log(self):
-        os.system('rm '+ self.log_name)
 
     def run(self, folder='.'):
         self.log_name = self.main_dir + self.log_name
@@ -76,15 +70,11 @@ class simulation:
         f.write(content)
         f.close()
 
-    def make(self):
-        os.system('make clean')
-        os.system('make')
-
-
 class post_process:
     def __init__(self,
                  postfix='',
                  fig_folder='/fig'):
+        
         self.figures_folders = fig_folder
         self.postfix = postfix
         self.last_index=0
@@ -94,14 +84,14 @@ class post_process:
         
         def open_h5_file(filename):
             waiting_time=0
-            while (waiting_time < 100):
+            while (waiting_time < 10):
                 try:
                     f = h5py.File(filename,'r')
                     break
                 except:
                     time.sleep(1)
                     waiting_time +=1
-            if waiting_time == 100:
+            if waiting_time == 10:
                 print('ERROR: File was not been able to open for 10s !!!')
                 return -1
             return f
@@ -121,7 +111,7 @@ class post_process:
             print('Unable to find the variable')
             return -1.0
         
-    #This function checks is there is a new output Data file
+    #This function checks is there a new output Data file
     #if yes - it returns the index of the last written file
     #if no - it returns zero
     def check_changes(self,files_name):
