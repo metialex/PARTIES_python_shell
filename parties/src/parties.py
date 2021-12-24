@@ -20,41 +20,51 @@ class simulation:
                  proc_num = 2,
                  PARTIESINP = 'parties.inp',
                  log_name = 'tmp.log',
-                 run_command = 'mpirun'
+                 run_command = 'mpirun',
+                 work_dir = '.'
                  ):
         #Default variables
         self.proc_num = proc_num
         self.PARTIESINP = PARTIESINP
         self.log_name = log_name
         self.run_command = run_command
+        self.work_dir=work_dir
+
         self.tmp_log_file = None
         self.parties = None #process variable - to start/stop simulation
         self.status = False
         self.main_dir = os.getcwd() + '/'
+        
 
-    def run(self, folder='.'):
+    def run(self):
         self.log_name = self.main_dir + self.log_name
         with open(self.log_name,'w') as log_file:
             if self.proc_num > 1:
-                self.parties = subprocess.Popen([self.run_command,'-np', str(self.proc_num), './parties'],stdout=log_file,cwd=folder)
+                self.parties = subprocess.Popen([self.run_command,'-np', str(self.proc_num), './parties'],stdout=log_file,cwd=self.work_dir)
             if self.proc_num == 1:
-                self.parties = subprocess.Popen(['./parties'],stdout=log_file,cwd=folder)
+                self.parties = subprocess.Popen(['./parties'],stdout=log_file,cwd=self.work_dir)
         self.status = True
 
     def stop(self):
-        self.parties.kill()
+        stop_inp=self.main_dir+'/'+self.work_dir+'/stop.inp'
+        f=open(stop_inp,'w')
+        f.write('1')
+        while (self.check_status != 0):
+            time.sleep(0.1)
         self.status = False
 
     def check_status(self):
         return self.parties.poll()
 
+    #Add main and work directory to change files already in work dir
     def change_line(self, file_name, line_keyword, value):
         for line in fileinput.input([file_name], inplace=True):
             if line.strip().startswith(line_keyword):
                 new_line = line_keyword + str(value) + '\n'
                 line = new_line
             sys.stdout.write(line)
-
+    
+    #Add main and work directory to change files already in work dir
     def change_parties_inp(self,cols,row):
         for comp in range(len(cols)):
             line_keyword = cols[comp]
@@ -64,6 +74,7 @@ class simulation:
     #Overwrites the file with 'content'
     #Opens the file with given file name
     #in work directory
+    #Add main and work directory to change files already in work dir
     def change_file(self,content,file_name):
         file = self.main_dir + file_name
         f=open(file,'w')
@@ -271,7 +282,8 @@ class multiple_simulations:
             self.set_postfix(cols,rows)
             s = simulation(proc_num=int(self.n_pps[idx]),
                            run_command=self.run_command,
-                           log_name=self.postfix+'/tmp.log'
+                           log_name=self.postfix+'/tmp.log',
+                           work_dir='/'+self.postfix
                            )
             sim = {'simulation':s,
                    'postfix':self.postfix,
@@ -303,7 +315,7 @@ class multiple_simulations:
                     continue
                 if self.work_proc < item['n_pps']: continue
                 #Run simulation
-                item['simulation'].run(folder=(item['postfix']+'/'))
+                item['simulation'].run()
                 item['status'] = 'Running'
                 self.work_proc -= item['n_pps']
             ########################## Stop ############################

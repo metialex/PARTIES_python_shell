@@ -9,7 +9,7 @@ dependencies = ['numpy',
              
 setup(
    name='parties',
-   version='0.0.23',
+   version='0.0.25',
    description='A python shell for parties cfd code',
    license="MIT",
    long_description='A python shell for parties cfd code',
