@@ -42,7 +42,9 @@ class simulation:
             if self.proc_num > 1:
                 self.parties = subprocess.Popen([self.run_command,'-np', str(self.proc_num), './parties'],stdout=log_file,cwd=self.work_dir)
             if self.proc_num == 1:
+                print(self.work_dir)
                 self.parties = subprocess.Popen(['./parties'],stdout=log_file,cwd=self.work_dir)
+
         self.status = True
 
     def stop(self):
@@ -283,7 +285,7 @@ class multiple_simulations:
             s = simulation(proc_num=int(self.n_pps[idx]),
                            run_command=self.run_command,
                            log_name=self.postfix+'/tmp.log',
-                           work_dir='/'+self.postfix
+                           work_dir=self.postfix
                            )
             sim = {'simulation':s,
                    'postfix':self.postfix,
