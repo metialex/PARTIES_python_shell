@@ -272,7 +272,6 @@ class multiple_simulations:
             print(print_cmd,end='')
             self.print_status = True
 
-
         if self.vars is None:
             print('No variables to iterate')
             return 0
@@ -282,7 +281,7 @@ class multiple_simulations:
         #Create a list of simulations
         for idx, rows in self.vars.iterrows():
             self.set_postfix(cols,rows)
-            s = simulation(proc_num=int(self.n_pps[idx]),
+            s = simulation(proc_num=int(self.n_pps),
                            run_command=self.run_command,
                            log_name=self.postfix+'/tmp.log',
                            work_dir=self.postfix
@@ -291,7 +290,7 @@ class multiple_simulations:
                    'postfix':self.postfix,
                    'status':'Pending',
                    'idx':idx,
-                   'n_pps':int(self.n_pps[idx])}
+                   'n_pps':int(self.n_pps)}
             self.sim_list.append(sim)
 
             #Prepare folders for each simulation

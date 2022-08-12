@@ -23,5 +23,3 @@ src/parties.egg-info/SOURCES.txt
 src/parties.egg-info/dependency_links.txt
 src/parties.egg-info/requires.txt
 src/parties.egg-info/top_level.txt
-test/README.md
-test/test.py
